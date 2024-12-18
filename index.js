@@ -1,7 +1,7 @@
-const PORT = 5001;
-const express = require("express");
+require("dotenv").config();
+const app = require("./src/app");
 
-const app = express();
+const PORT = process.env.PORT || 3056;
 app.listen(PORT, () => {
-  console.log(`Server is running in port ${PORT}`);
+  console.log(`WSV ChatAppp start with port ${PORT}`);
 });
