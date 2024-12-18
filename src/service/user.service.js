@@ -8,16 +8,32 @@ const {
 } = require("../core/error.response");
 
 class UserService {
+  static async getUserByUserId({ userId, select = [] }) {
+    const foundUser = await userModel
+      .findById(userId)
+      .select(getSelectData(select))
+      .lean()
+      .exec();
+
+    if (!foundUser) {
+      throw new BadRequestError("User Not Found");
+    }
+    return foundUser;
+  }
   static async getUserByEmail({ email, select = [] }) {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
       throw new BadRequestError("Invalid Email");
     }
-    return await userModel
+    const foundUser = await userModel
       .findOne({ email })
       .select(getSelectData(select))
       .lean()
       .exec();
+    if (!foundUser) {
+      throw new BadRequestError("User Not Found");
+    }
+    return foundUser;
   }
 
   static async foundUserByEmailAndPassword({ email, password }) {

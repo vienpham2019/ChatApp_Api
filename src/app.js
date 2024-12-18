@@ -1,9 +1,11 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const app = express();
 
 // init middlewares
 app.use(express.json());
-
+//Parses cookies attached to incoming requests, making them available in req.cookies for easy access in your route handlers.
+app.use(cookieParser());
 // init db
 require("./db/init.mongodb");
 

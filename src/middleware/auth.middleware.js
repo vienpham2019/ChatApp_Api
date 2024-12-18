@@ -1,6 +1,7 @@
 "use strict";
 
 const { UnauthorizedError } = require("../core/error.response");
+const UserService = require("../service/user.service");
 
 const HEADER = {
   API_KEY: "x-api-key",
@@ -24,11 +25,14 @@ const authentication = asyncHandler(async (req, res, next) => {
       accessToken.split(" ")[1],
       process.env.JWT_SECRET
     );
-    if (userId != decodeUser.userId) {
-      throw new UnauthorizedError("User id not match");
+    if (!decodeUser) {
+      throw new UnauthorizedError("Invalid Token");
     }
     // Ok all then return next
-    req.user = decodeUser;
+    req.user = UserService.getUserByUserId({
+      userId: decodeUser.userId,
+      select: ["email", "fullName", "profilePic"],
+    });
     return next();
   } catch (error) {
     throw error;
