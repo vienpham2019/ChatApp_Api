@@ -1,6 +1,7 @@
 "use strict";
-
+const JWT = require("jsonwebtoken");
 const { UnauthorizedError } = require("../core/error.response");
+const { asyncHandler } = require("../helper/asyncHandler");
 const UserService = require("../service/user.service");
 
 const HEADER = {
@@ -31,7 +32,7 @@ const authentication = asyncHandler(async (req, res, next) => {
     // Ok all then return next
     req.user = UserService.getUserByUserId({
       userId: decodeUser.userId,
-      select: ["email", "fullName", "profilePic"],
+      select: ["_id", "email", "fullName", "profilePic"],
     });
     return next();
   } catch (error) {
