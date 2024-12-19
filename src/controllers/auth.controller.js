@@ -46,7 +46,7 @@ class AuthController {
   };
 
   logOut = async (req, res, next) => {
-    clearJwtCookie(res);
+    clearJwtCookie({ res });
     new OK({
       message: "LogOut Success!",
       metadata: { message: "LogOut Success!" },

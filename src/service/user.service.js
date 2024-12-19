@@ -25,15 +25,11 @@ class UserService {
     if (!emailRegex.test(email)) {
       throw new BadRequestError("Invalid Email");
     }
-    const foundUser = await userModel
+    return await userModel
       .findOne({ email })
       .select(getSelectData(select))
       .lean()
       .exec();
-    if (!foundUser) {
-      throw new BadRequestError("User Not Found");
-    }
-    return foundUser;
   }
 
   static async foundUserByEmailAndPassword({ email, password }) {
@@ -46,7 +42,7 @@ class UserService {
         `The following fields are required: ${missingFields.join(", ")}`
       );
     }
-    const foundUser = UserService.getUserByEmail({ email });
+    const foundUser = await UserService.getUserByEmail({ email });
     if (!foundUser) {
       throw new UnauthorizedError("Invalid email or password");
     }
@@ -70,7 +66,7 @@ class UserService {
         `The following fields are required: ${missingFields.join(", ")}`
       );
     }
-    const foundUser = UserService.getUserByEmail({ email });
+    const foundUser = await UserService.getUserByEmail({ email });
     if (foundUser) {
       throw new ConflictRequestError("Email already registered!");
     }

@@ -7,15 +7,15 @@ const createKey = () => {
   return crypto.randomBytes(32).toString("hex");
 };
 
-const createTokenPair = async ({ payload, res }) => {
+const createTokenPair = ({ payload, res }) => {
   try {
     // access token
-    const accessToken = await JWT.sign(payload, process.env.JWT_SECRET, {
+    const accessToken = JWT.sign(payload, process.env.JWT_SECRET, {
       expiresIn: "15min",
     });
 
     // refresh token
-    const refreshToken = await JWT.sign(payload, JWT_SECRET, {
+    const refreshToken = JWT.sign(payload, process.env.JWT_SECRET, {
       expiresIn: "7 days",
     });
     setJwtCookie({ res, refreshToken });
