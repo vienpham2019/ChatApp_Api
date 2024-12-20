@@ -1,10 +1,12 @@
 "use strict";
 const byscrypt = require("bcrypt");
 const userModel = require("../models/user.model");
+const cloudinary = require("../db/init.cloudinary");
 const { getSelectData } = require("../util/db.util");
 const {
   ConflictRequestError,
   BadRequestError,
+  InternalServerError,
 } = require("../core/error.response");
 
 class UserService {
@@ -91,6 +93,30 @@ class UserService {
       );
     }
     return { message: "SignUp successful" };
+  }
+
+  static async updateProfile({ body, user }) {
+    const { profilePic } = body;
+
+    if (!profilePic) {
+      throw new BadRequestError(
+        "A profile picture is required. Please upload one to proceed."
+      );
+    }
+    const { _id: userId } = user;
+    try {
+      const uploadRes = await cloudinary.uploader.upload(profilePic);
+      const updatedUser = await userModel
+        .findByIdAndUpdate(
+          userId,
+          { profilePic: uploadRes.secure_url },
+          { new: true }
+        )
+        .lean();
+      return updatedUser;
+    } catch (error) {
+      throw new InternalServerError(error);
+    }
   }
 }
 

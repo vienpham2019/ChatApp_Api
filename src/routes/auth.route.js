@@ -8,7 +8,7 @@ const { minLimiter } = require("../middleware/limiter.middleware");
 
 router.post(
   "/signUp",
-  minLimiter({ min: 4 }),
+  minLimiter({ min: 2 }),
   asyncHandler(AuthController.signUp)
 );
 router.post(
@@ -17,6 +17,10 @@ router.post(
   asyncHandler(AuthController.logIn)
 );
 router.get("/refresh", asyncHandler(AuthController.refresh));
-router.get("/logOut", asyncHandler(AuthController.logOut));
+router.get(
+  "/logOut",
+  minLimiter({ min: 1 }),
+  asyncHandler(AuthController.logOut)
+);
 
 module.exports = router;
