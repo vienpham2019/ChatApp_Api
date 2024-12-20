@@ -5,7 +5,7 @@ const { Schema, model } = require("mongoose"); // Erase if already required
 const DOCUMENT_NAME = "ChatRoom";
 const COLLECTION_NAME = "ChatRooms";
 
-const ChatRoomType = Object.freeze({
+const Type = Object.freeze({
   PRIVATE: "Private",
   GROUP: "Group",
 });
@@ -30,7 +30,7 @@ const chatRoomSchema = new Schema(
     type: {
       type: String,
       enum: Object.values(ChatRoomType),
-      default: ChatRoomType.PRIVATE,
+      default: Type.PRIVATE,
     },
   },
   {
@@ -45,7 +45,7 @@ chatRoomSchema.index({ members: 1 });
 //Export the model
 module.exports = {
   ChatRoomModel: mongoose.model(DOCUMENT_NAME, chatRoomSchema),
-  Enum: {
-    ChatRoomType,
+  ChatRoomEnum: {
+    Type,
   },
 };
