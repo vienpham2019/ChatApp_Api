@@ -1,13 +1,13 @@
 "use strict";
 const byscrypt = require("bcrypt");
 const { UserModel } = require("../models/user.model");
-const cloudinary = require("../db/init.cloudinary");
 const { getSelectData } = require("../util/db.util");
 const {
   ConflictRequestError,
   BadRequestError,
   InternalServerError,
 } = require("../core/error.response");
+const ImageService = require("./image.service");
 
 class UserService {
   static async getUserByUserId({ userId, select = [] }) {
@@ -103,10 +103,9 @@ class UserService {
     }
     const { _id: userId } = user;
     try {
-      const uploadRes = await cloudinary.uploader.upload(profilePic);
       const updatedUser = await UserModel.findByIdAndUpdate(
         userId,
-        { profilePic: uploadRes.secure_url },
+        { profilePic: await ImageService.uploadImage(profilePic) },
         { new: true }
       ).lean();
       return updatedUser;

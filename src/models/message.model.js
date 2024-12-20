@@ -28,4 +28,4 @@ const messageSchema = new Schema(
 );
 
 //Export the model
-module.exports = model(DOCUMENT_NAME, messageSchema);
+module.exports = { MessageModel: model(DOCUMENT_NAME, messageSchema) };
