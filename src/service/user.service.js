@@ -1,6 +1,6 @@
 "use strict";
 const byscrypt = require("bcrypt");
-const userModel = require("../models/user.model");
+const { UserModel } = require("../models/user.model");
 const cloudinary = require("../db/init.cloudinary");
 const { getSelectData } = require("../util/db.util");
 const {
@@ -11,8 +11,7 @@ const {
 
 class UserService {
   static async getUserByUserId({ userId, select = [] }) {
-    const foundUser = await userModel
-      .findById(userId)
+    const foundUser = await UserModel.findById(userId)
       .select(getSelectData(select))
       .lean()
       .exec();
@@ -27,8 +26,7 @@ class UserService {
     if (!emailRegex.test(email)) {
       throw new BadRequestError("Invalid Email");
     }
-    return await userModel
-      .findOne({ email })
+    return await UserModel.findOne({ email })
       .select(getSelectData(select))
       .lean()
       .exec();
@@ -86,7 +84,7 @@ class UserService {
       throw new BadRequestError("Password meets all requirements.");
     }
     password = await byscrypt.hash(password, 10);
-    const newUser = await userModel.create({ email, password, fullName });
+    const newUser = await UserModel.create({ email, password, fullName });
     if (!newUser) {
       throw new InternalServerError(
         `Unable to complete signup process. Please try again`
@@ -106,13 +104,11 @@ class UserService {
     const { _id: userId } = user;
     try {
       const uploadRes = await cloudinary.uploader.upload(profilePic);
-      const updatedUser = await userModel
-        .findByIdAndUpdate(
-          userId,
-          { profilePic: uploadRes.secure_url },
-          { new: true }
-        )
-        .lean();
+      const updatedUser = await UserModel.findByIdAndUpdate(
+        userId,
+        { profilePic: uploadRes.secure_url },
+        { new: true }
+      ).lean();
       return updatedUser;
     } catch (error) {
       throw new InternalServerError(error);

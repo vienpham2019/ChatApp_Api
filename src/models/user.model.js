@@ -37,4 +37,4 @@ const userSchema = new Schema(
 );
 
 //Export the model
-module.exports = model(DOCUMENT_NAME, userSchema);
+module.exports = { UserModel: model(DOCUMENT_NAME, userSchema) };
