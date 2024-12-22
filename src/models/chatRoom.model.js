@@ -29,7 +29,7 @@ const chatRoomSchema = new Schema(
     },
     type: {
       type: String,
-      enum: Object.values(ChatRoomType),
+      enum: Object.values(Type),
       default: Type.PRIVATE,
     },
   },
@@ -44,7 +44,7 @@ chatRoomSchema.index({ members: 1 });
 
 //Export the model
 module.exports = {
-  ChatRoomModel: mongoose.model(DOCUMENT_NAME, chatRoomSchema),
+  ChatRoomModel: model(DOCUMENT_NAME, chatRoomSchema),
   ChatRoomEnum: {
     Type,
   },

@@ -30,7 +30,7 @@ const authentication = asyncHandler(async (req, res, next) => {
       throw new UnauthorizedError("Invalid Token");
     }
     // Ok all then return next
-    req.user = UserService.getUserByUserId({
+    req.user = await UserService.getUserByUserId({
       userId: decodeUser.userId,
       select: ["_id", "email", "fullName", "profilePic"],
     });

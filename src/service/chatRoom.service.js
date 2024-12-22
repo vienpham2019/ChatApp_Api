@@ -12,9 +12,7 @@ class ChatRoomService {
       type: ChatRoomEnum.Type.PRIVATE, // Ensure it's a private chat room
       members: { $all: [userId1, userId2] }, // Match both user IDs
     });
-    if (!foundChatRoom) {
-      throw new BadRequestError("Chat room not found");
-    }
+
     return foundChatRoom;
   }
   static async findChatRoomById({ chatRoomId, userId }) {
@@ -62,13 +60,13 @@ class ChatRoomService {
   static async createChatRoom({
     user,
     members,
-    type = Enum.ChatRoomType.PRIVATE,
+    type = ChatRoomEnum.Type.PRIVATE,
   }) {
     try {
       if (!Array.isArray(members) || members.length < 1) {
         throw new BadRequestError("All field required");
       }
-      members.push(user._id);
+      members = [...members, user._id];
       const newChatRoom = await ChatRoomModel.create({
         members,
         type,
@@ -78,9 +76,9 @@ class ChatRoomService {
           `Unable to create chatroom. Please try again`
         );
       }
-      return { message: "Create chat room successful" };
+      return newChatRoom;
     } catch (error) {
-      throw new InternalServerError("Unable to create chat room.");
+      throw new InternalServerError("Unable to create chat room. " + error);
     }
   }
 }
