@@ -5,6 +5,8 @@ const {
   InternalServerError,
 } = require("../core/error.response");
 const { ChatRoomModel, ChatRoomEnum } = require("../models/chatRoom.model");
+const { default: mongoose } = require("mongoose");
+const { MessageModel } = require("../models/message.model");
 
 class ChatRoomService {
   static async findPrivateChatRoom({ userId1, userId2 }) {
@@ -79,6 +81,42 @@ class ChatRoomService {
       return newChatRoom;
     } catch (error) {
       throw new InternalServerError("Unable to create chat room. " + error);
+    }
+  }
+
+  static async deleteChatRoom({ user, params }) {
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
+      const { chatRoomId } = params;
+      // Check if the message ID is valid
+      if (!chatRoomId) {
+        throw new Error("Chat Room ID is required.");
+      }
+
+      // Delete the message by its ID
+      const chatRoom = await ChatRoomModel.findByIdAndDelete(chatRoomId, {
+        session,
+      });
+      // If no chatRoom was found and deleted, handle the error
+      if (!chatRoom) {
+        throw new Error("ChatRoom not found.");
+      }
+
+      const result = await MessageModel.deleteMany({ chatRoomId }, { session });
+      // Commit the transaction
+      await session.commitTransaction();
+      session.endSession();
+
+      // Return a success message
+      return {
+        message: "ChatRoom deleted successfully.",
+        deletedMessages: result.deletedCount,
+      };
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw new InternalServerError(" Failed to delete chat room.");
     }
   }
 }

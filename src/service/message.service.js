@@ -10,8 +10,13 @@ const UserService = require("./user.service");
 const ImageService = require("./image.service");
 
 class MessageService {
+  static async findMessageById({ messageId, select = [] }) {
+    return await MessageModel.findById(messageId)
+      .select(getSelectData(select))
+      .lean()
+      .exec();
+  }
   static async createPrivateMessage({ user, body }) {
-    console.log(user);
     const { reciverId, text, image } = body;
     if ((!text || !image) && !reciverId) {
       throw new BadRequestError("Message content is required.");
@@ -26,7 +31,6 @@ class MessageService {
         user,
         members: [reciverId],
       });
-      console.log(foundChatRoom);
     }
     let payload = { senderId: user._id, chatRoomId: foundChatRoom._id };
     if (text) payload.text = text;
@@ -35,6 +39,32 @@ class MessageService {
     }
     const newMessage = await MessageModel.create(payload);
     return newMessage;
+  }
+
+  static async deleteMessage({ params, user }) {
+    try {
+      const { messageId } = params;
+      // Check if the message ID is valid
+      if (!messageId) {
+        throw new Error("Message ID is required.");
+      }
+
+      // Delete the message by its ID
+      const result = await MessageModel.findOneAndDelete({
+        _id: messageId,
+        senderId: user._id,
+      });
+
+      // If no message was found and deleted, handle the error
+      if (!result) {
+        throw new Error("Message not found.");
+      }
+
+      // Return a success message
+      return { message: "Message deleted successfully." };
+    } catch (error) {
+      throw new InternalServerError("Failed to delete message.");
+    }
   }
 }
 
