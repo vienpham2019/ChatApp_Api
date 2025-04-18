@@ -6,6 +6,7 @@ const {
   ConflictRequestError,
   BadRequestError,
   InternalServerError,
+  UnauthorizedError,
 } = require("../core/error.response");
 const ImageService = require("./image.service");
 
@@ -26,10 +27,14 @@ class UserService {
     if (!emailRegex.test(email)) {
       throw new BadRequestError("Invalid Email");
     }
-    return await UserModel.findOne({ email })
-      .select(getSelectData(select))
-      .lean()
-      .exec();
+    try {
+      return await UserModel.findOne({ email })
+        .select(getSelectData(select))
+        .lean()
+        .exec();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   static async foundUserByEmailAndPassword({ email, password }) {
@@ -79,9 +84,11 @@ class UserService {
       noSpaces: "Password must not contain spaces."
     */
     const regexPassword =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&#!])[A-Za-z\d@$!%*?&#]{8,}$/;
     if (!regexPassword.test(password)) {
-      throw new BadRequestError("Password meets all requirements.");
+      throw new BadRequestError(
+        "Password does not meet the required criteria."
+      );
     }
     password = await byscrypt.hash(password, 10);
     const newUser = await UserModel.create({ email, password, fullName });
