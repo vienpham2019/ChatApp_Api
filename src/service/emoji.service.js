@@ -2,12 +2,34 @@
 const { InternalServerError } = require("../core/error.response");
 const { EmojiModel } = require("../models/emoji.model");
 class EmojiService {
-  static async getAllCategories() {
+  static async getByCategories(categories) {
     try {
-      const categories = await EmojiModel.getGroupedByCategory();
+      const emojis = await EmojiModel.getByCategories(categories);
       return {
-        categories,
+        emojis,
       };
+    } catch (error) {
+      throw new InternalServerError();
+    }
+  }
+
+  static async getAllCategoryCounts() {
+    try {
+      let categoryCounts = await EmojiModel.getCategoryCounts();
+      categoryCounts.unshift({ _id: "Recently Used", count: 5 });
+
+      return {
+        categoryCounts,
+      };
+    } catch (error) {
+      throw new InternalServerError();
+    }
+  }
+
+  static async searchEmojis(searchQuery) {
+    try {
+      let emojis = await EmojiModel.searchEmojis(searchQuery);
+      return { emojis };
     } catch (error) {
       throw new InternalServerError();
     }

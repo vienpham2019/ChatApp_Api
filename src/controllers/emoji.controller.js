@@ -4,10 +4,24 @@ const { OK, CREATED } = require("../core/success.response");
 const EmojiService = require("../service/emoji.service");
 
 class EmojiController {
-  getAllCategories = async (req, res, next) => {
+  getByCategories = async (req, res, next) => {
     new OK({
-      message: "Get All Categories Success!",
-      metadata: await EmojiService.getAllCategories(),
+      message: "Get All Category Success!",
+      metadata: await EmojiService.getByCategories(req.body),
+    }).send(res);
+  };
+
+  getAllCategoryCounts = async (req, res, next) => {
+    new OK({
+      message: "Get All Category Success!",
+      metadata: await EmojiService.getAllCategoryCounts(),
+    }).send(res);
+  };
+
+  searchEmojis = async (req, res, next) => {
+    new OK({
+      message: "Search Emojis Success!",
+      metadata: await EmojiService.searchEmojis(req.query.searchQuery),
     }).send(res);
   };
 }

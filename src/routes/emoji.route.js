@@ -7,6 +7,12 @@ const { authentication } = require("../middleware/auth.middleware");
 const emojiController = require("../controllers/emoji.controller");
 
 // router.use(authentication);
-router.get("/categories", asyncHandler(emojiController.getAllCategories));
+router.get(
+  "/categoryCounts",
+  asyncHandler(emojiController.getAllCategoryCounts)
+);
+router.get("/search", asyncHandler(emojiController.searchEmojis));
+
+router.post("/getByCategories", asyncHandler(emojiController.getByCategories));
 
 module.exports = router;

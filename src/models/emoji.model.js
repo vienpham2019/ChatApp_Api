@@ -26,36 +26,65 @@ const EmojiSchema = new Schema(
   }
 );
 
-EmojiSchema.statics.getAllCategories = function () {
-  return this.distinct("category");
+EmojiSchema.statics.getByCategories = function (categories) {
+  const queries = categories.map((category) => {
+    if (category === "Recently Used") {
+      return this.aggregate([
+        { $match: { category: { $ne: null } } }, // or remove if not needed
+        { $sample: { size: 5 } }, // randomly pick 5
+        {
+          $project: {
+            _id: 0,
+            name: 1,
+            emoticons: 1,
+            skins: 1,
+          },
+        },
+      ]);
+    } else {
+      return this.find(
+        { category },
+        { _id: 0, name: 1, emoticons: 1, skins: 1 }
+      );
+    }
+  });
+
+  return Promise.all(queries);
 };
 
-EmojiSchema.statics.getGroupedByCategory = function () {
+EmojiSchema.statics.getCategoryCounts = function () {
   return this.aggregate([
-    {
-      $project: {
-        _id: 0,
-        category: 1,
-        name: 1,
-        emoticons: 1,
-        keywords: 1,
-        skins: 1,
-      },
-    },
     {
       $group: {
         _id: "$category",
-        emojis: { $push: "$$ROOT" },
+        count: { $sum: 1 },
       },
     },
     { $sort: { _id: 1 } },
   ]);
 };
 
-EmojiSchema.index({ keywords: 1 });
-EmojiSchema.index({ emoticons: 1 });
-EmojiSchema.index({ name: "text" });
-EmojiSchema.index({ categorie: 1 });
+EmojiSchema.statics.searchEmojis = function (query) {
+  const isSymbolSearch = /[^a-zA-Z0-9\s]/.test(query);
+
+  if (isSymbolSearch) {
+    return this.find({
+      emoticons: { $in: [query] },
+    }).select("name skins emoticons");
+  }
+
+  // Default full-text search
+  return this.find({
+    $or: [
+      { name: new RegExp(query, "i") },
+      { keywords: { $elemMatch: { $regex: query, $options: "i" } } },
+    ],
+  }).select("name skins emoticons");
+};
+
+EmojiSchema.index({ name: 1 }); // For regex on name
+EmojiSchema.index({ keywords: 1 }); // For regex match inside array
+EmojiSchema.index({ emoticons: 1 }); // For symbol/emoticon search
 
 //Export the model
 module.exports = { EmojiModel: model(DOCUMENT_NAME, EmojiSchema) };
