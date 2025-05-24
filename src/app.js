@@ -2,6 +2,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const corsOptions = require("./config/allowedOrigins");
+const morgan = require("morgan");
 const app = express();
 
 // init middlewares
@@ -9,6 +10,7 @@ app.use(express.json());
 app.use(cors(corsOptions));
 //Parses cookies attached to incoming requests, making them available in req.cookies for easy access in your route handlers.
 app.use(cookieParser());
+app.use(morgan("dev"));
 // init db
 require("./db/init.mongodb");
 

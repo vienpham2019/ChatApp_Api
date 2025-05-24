@@ -22,6 +22,28 @@ class UserService {
     }
     return foundUser;
   }
+  static async getUserProfile({ userId }) {
+    const users = {
+      user1: {
+        userId: "user1",
+        name: "Alice Verzosa",
+        profilePictureUrl: "https://i.pravatar.cc/150?img=1",
+      },
+      user2: {
+        userId: "user2",
+        name: "Trent Riewe",
+        profilePictureUrl: "https://i.pravatar.cc/150?img=4",
+      },
+      user3: {
+        userId: "user3",
+        name: "Kimberly Claibome",
+        profilePictureUrl: "https://i.pravatar.cc/150?img=9",
+      },
+    };
+
+    return { user: users[userId] };
+  }
+
   static async getUserByEmail({ email, select = [] }) {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {

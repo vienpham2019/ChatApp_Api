@@ -4,6 +4,13 @@ const { OK, CREATED } = require("../core/success.response");
 const EmojiService = require("../service/emoji.service");
 
 class EmojiController {
+  getAllEmojis = async (req, res, next) => {
+    new OK({
+      message: "Get All Emojis Success!",
+      metadata: await EmojiService.getAllEmojis(),
+    }).send(res);
+  };
+
   getByCategories = async (req, res, next) => {
     new OK({
       message: "Get All Category Success!",

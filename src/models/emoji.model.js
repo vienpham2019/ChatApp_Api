@@ -52,6 +52,19 @@ EmojiSchema.statics.getByCategories = function (categories) {
   return Promise.all(queries);
 };
 
+EmojiSchema.statics.getAllEmojis = async function () {
+  const emojis = await this.find(
+    {},
+    { _id: 0, name: 1, emoticons: 1, skins: 1, category: 1 }
+  );
+  return emojis.reduce((acc, emoji) => {
+    const cat = emoji.category || "Uncategorized";
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(emoji);
+    return acc;
+  }, {});
+};
+
 EmojiSchema.statics.getCategoryCounts = function () {
   return this.aggregate([
     {
@@ -72,14 +85,52 @@ EmojiSchema.statics.searchEmojis = function (query) {
       emoticons: { $in: [query] },
     }).select("name skins emoticons");
   }
-
-  // Default full-text search
-  return this.find({
-    $or: [
-      { name: new RegExp(query, "i") },
-      { keywords: { $elemMatch: { $regex: query, $options: "i" } } },
-    ],
-  }).select("name skins emoticons");
+  return this.aggregate([
+    {
+      $addFields: {
+        score: {
+          $add: [
+            {
+              $cond: [
+                { $regexMatch: { input: "$name", regex: query, options: "i" } },
+                2, // name match score
+                0,
+              ],
+            },
+            {
+              $cond: [
+                {
+                  $gt: [
+                    {
+                      $size: {
+                        $filter: {
+                          input: "$keywords",
+                          as: "kw",
+                          cond: {
+                            $regexMatch: {
+                              input: "$$kw",
+                              regex: query,
+                              options: "i",
+                            },
+                          },
+                        },
+                      },
+                    },
+                    0,
+                  ],
+                },
+                1, // keywords match score
+                0,
+              ],
+            },
+          ],
+        },
+      },
+    },
+    { $match: { score: { $gt: 0 } } },
+    { $sort: { score: -1 } },
+    { $project: { name: 1, skins: 1, emoticons: 1 } },
+  ]);
 };
 
 EmojiSchema.index({ name: 1 }); // For regex on name

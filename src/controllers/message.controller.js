@@ -4,6 +4,20 @@ const { OK, CREATED } = require("../core/success.response");
 const MessageService = require("../service/message.service");
 
 class MessageController {
+  getAllMessages = async (req, res, next) => {
+    new OK({
+      message: "Get All Message Success!",
+      metadata: await MessageService.getAllMessages(),
+    }).send(res);
+  };
+
+  getMessageById = async (req, res, next) => {
+    new OK({
+      message: "Get Message Success!",
+      metadata: await MessageService.getMessageById(req.params),
+    }).send(res);
+  };
+
   createMessage = async (req, res, next) => {
     new CREATED({
       message: "Create Message Success!",

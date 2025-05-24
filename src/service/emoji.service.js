@@ -2,6 +2,17 @@
 const { InternalServerError } = require("../core/error.response");
 const { EmojiModel } = require("../models/emoji.model");
 class EmojiService {
+  static async getAllEmojis() {
+    try {
+      let emojis = await EmojiModel.getAllEmojis();
+      return {
+        emojis,
+      };
+    } catch (error) {
+      throw new InternalServerError();
+    }
+  }
+
   static async getByCategories(categories) {
     try {
       const emojis = await EmojiModel.getByCategories(categories);
