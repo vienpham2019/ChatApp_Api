@@ -30,6 +30,28 @@ class ChatRoomService {
     return foundChatRoom;
   }
 
+  static async getChatRoomInfo({ chatRoomId }) {
+    console.log(chatRoomId);
+    const users = {
+      user1: {
+        userId: "user1",
+        name: "Alice Verzosa",
+        profilePictureUrl: "https://i.pravatar.cc/150?img=1",
+      },
+      user2: {
+        userId: "user2",
+        name: "Trent Riewe",
+        profilePictureUrl: "https://i.pravatar.cc/150?img=4",
+      },
+      user3: {
+        userId: "user3",
+        name: "Kimberly Claibome",
+        profilePictureUrl: "https://i.pravatar.cc/150?img=9",
+      },
+    };
+    return { users };
+  }
+
   static async addMemberToGroupChat({ body, user }) {
     try {
       const { chatRoomId, addUserId } = body;
